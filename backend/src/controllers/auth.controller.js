@@ -27,7 +27,7 @@ const token = jwt.sign(
     {
     id:user._id,
 },
-"2e851fc24b70bd16374f0092e6ab5e68"
+process.env.JWT_SECRET
 );
 
 res.cookie("token",token)
@@ -43,8 +43,44 @@ res.status(201).json({
 }
 
 async function loginUser(req,res) {
-}
 
+    const { email, password} = req.body;
+  
+    const user = await userModel.findOne({ email });
+  
+    if(!user){
+      return res.status(400).json({
+        message: "invalid email or password"
+      });
+    }
+  
+    const isPasswordValid = await bcrypt.compare(password,user.password);
+  
+    if(!isPasswordValid){
+      return res.status(400).json({
+        message: "invalid email or password"
+      });
+    }
+  
+    const token = jwt.sign(
+      {
+        id: user._id,
+      },
+     process.env.JWT_SECRET
+    );
+        
+    res.cookie("token",token);
+  
+    res.status(200).json({
+      message:"user logged in successfully",
+      user:{
+        _id: user._id,
+        email:user.email,
+        fullName:user.fullName,
+      },
+    });
+  }
+  
 module.exports={
     registerUser,
     loginUser
