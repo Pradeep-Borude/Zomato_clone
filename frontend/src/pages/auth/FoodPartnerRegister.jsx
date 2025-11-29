@@ -31,7 +31,7 @@ export default function FoodPartnerRegister() {
         withCredentials: true
       });
       console.log('Registration successful:', response.data);
-      navigate('/create-food');
+      navigate('/food-partner/dashboard');
     } catch (error) {
       console.error('Registration error:', error.response?.data || error.message);
       alert(error.response?.data?.message || 'Registration failed');

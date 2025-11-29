@@ -19,7 +19,7 @@ export default function FoodPartnerLogin() {
       withCredentials: true
     });
     console.log('Login successful:', response.data);
-    navigate('/create-food');
+    navigate('/food-partner/dashboard');
   };
 
 
