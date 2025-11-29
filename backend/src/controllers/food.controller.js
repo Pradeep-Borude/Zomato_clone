@@ -10,7 +10,7 @@ const fileUploadResult = await storageService.uploadFile(req.file.buffer,uuid())
 const foodItem = await foodModel.create({
     name:req.body.name,
     description:req.body.description,
-    video:fileUploadResult.url,
+    image:fileUploadResult.url,
     foodPartner:req.foodPartner._id
 })
 
