@@ -27,7 +27,7 @@ router.get("/food-partner/me", verify.verifyFoodPartner, (req, res) => {
 
 
 // NEW: auth check / profile for current user
-router.get("/food-partner/user", verify.verifyUser, (req, res) => {
+router.get("/user/me", verify.verifyUser, (req, res) => {
   return res.status(200).json({
     success: true,
     user: req.user,
