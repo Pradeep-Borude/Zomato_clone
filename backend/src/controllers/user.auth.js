@@ -38,7 +38,7 @@ async function verifyUser(req, res, next) {
 
     const user = await userModel
       .findById(decoded.id)
-      .select("_id name email contact address createdAt updatedAt");
+      .select("_id fullName email contact address createdAt updatedAt");
 
     if (!user) {
       return res.status(401).json({ success: false, message: "Account not found" });
