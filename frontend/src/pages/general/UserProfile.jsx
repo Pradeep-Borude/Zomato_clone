@@ -1,11 +1,69 @@
-import '../../styles/home.css';
-import axios from 'axios';
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import BottomNav from '../../components/BottomNav';
+import '../../styles/foodPartnerDashboard.css';
 
-export default function UserProfile() {
+export default function FoodPartnerDashboard() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  const fetchUserData = async () => {
+    try {
+      const response = await axios.get(
+        'http://localhost:3000/api/auth/user/me',
+        { withCredentials: true }
+      );
+
+      setUser(response.data.user);
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching user data:', err);
+
+      if (err.response?.status === 401) {
+        navigate('/user/login');
+        return;
+      }
+
+      setUser({
+        fullName: 'Guest',
+        email: 'restaurant@example.com',
+        contact: '0000000000',
+        address: 'Your Restaurant Address',
+        profilePhoto: null,
+        createdAt: new Date().toISOString(),
+      });
+      
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      console.log('user state updated:', user);
+    }
+  }, [user]);
+
+  const handleLogout = async () => {
+    try {
+      await axios.get('http://localhost:3000/api/auth/user/logout', {
+        withCredentials: true,
+      });
+      navigate('/');
+    } catch (err) {
+      console.error('Logout error:', err);
+      alert('Logout failed');
+    }
+  };
+
+  // optional: keep this page only for users, not partners
   const decideRedirect = async () => {
     try {
       const partnerRes = await axios.get(
@@ -24,9 +82,7 @@ export default function UserProfile() {
         { withCredentials: true }
       );
       if (userRes.data?.success) {
-        // already on user profile; no redirect needed
-        navigate('/user');
-
+        // already on correct page for user, no redirect
         return;
       }
     } catch (e) {}
@@ -37,67 +93,73 @@ export default function UserProfile() {
 
   useEffect(() => {
     decideRedirect();
-  }, []); // run once when /user page opens
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="dashboard-container">
+        <div className="loading">Loading...</div>
+      </div>
+    );
+  }
 
   return (
-    <div className="home-container">
-      <div className="hero-section">
-        <h1 className="hero-title">👤 My Account</h1>
-        <p className="hero-subtitle">Manage your profile and preferences</p>
-      </div>
+    <div className="dashboard-container">
+      {/* Header */}
+      <header className="dashboard-header">
+        <h1>Your Profile</h1>
+        <button className="logout-btn" onClick={handleLogout}>
+          Logout
+        </button>
+      </header>
 
-      <div className="products-section">
-        <div
-          style={{
-            padding: '30px 20px',
-            color: 'var(--text-secondary)',
-          }}
-        >
-          <div
-            style={{
-              background: 'var(--bg-secondary)',
-              borderRadius: '12px',
-              padding: '30px',
-              textAlign: 'center',
-              marginBottom: '20px',
-            }}
-          >
-            <div style={{ fontSize: '60px', marginBottom: '20px' }}>👤</div>
-            <p style={{ fontSize: '18px', marginBottom: '10px' }}>Welcome!</p>
-            <p style={{ marginBottom: '30px' }}>Please sign in to view your profile</p>
-            <button
-              onClick={() => navigate('/user/login')}
-              className="add-to-cart-btn"
-              style={{ padding: '10px 20px' }}
-            >
-              Sign In
-            </button>
+      {error && <div className="error-banner">{error}</div>}
+
+      {/* Profile Section */}
+      {user && (
+        <section className="profile-section">
+          <div className="profile-card">
+            <div className="profile-header">
+              <div className="profile-avatar">
+                <img
+                  src={
+                    user.profilePhoto ||
+                    'https://i.pinimg.com/736x/36/80/34/3680348b64995e6c2b7f36461e1404ab.jpg'
+                  }
+                  alt={user.fullName || 'User'}
+                />
+              </div>
+              <div className="profile-info">
+                <h2>{user.fullName || 'User name'}</h2>
+                <span className="detail-value">{user.email || 'email'}</span>
+              </div>
+            </div>
+
+            <div className="profile-actions">
+              <button className="btn-secondary">Edit Profile</button>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Quick actions section */}
+      <section className="stats-section">
+        <div className="stat-card">
+          <div className="stat-value">Support</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-value">
+            ★ <br /> rate us
           </div>
         </div>
-      </div>
-
-      <nav className="navbar-bottom">
-        <div className="navbar-item" onClick={() => navigate('/')}>
-          <div className="navbar-icon">🏠</div>
-          <div className="navbar-label">Home</div>
+        <div className="stat-card">
+          <div className="stat-value">Coupons</div>
         </div>
-
-        <div className="navbar-item" onClick={() => navigate('/cart')}>
-          <div className="navbar-icon">🛒</div>
-          <div className="navbar-label">Cart</div>
-          <div className="cart-badge">0</div>
+        <div className="stat-card">
+          <div className="stat-value">Settings</div>
         </div>
-
-        <div className="navbar-item" onClick={() => navigate('/orders')}>
-          <div className="navbar-icon">📦</div>
-          <div className="navbar-label">Orders</div>
-        </div>
-
-        <div className="navbar-item active" onClick={() => navigate('/user')}>
-          <div className="navbar-icon">👤</div>
-          <div className="navbar-label">Account</div>
-        </div>
-      </nav>
+      </section>
+      <BottomNav/>
     </div>
   );
 }
