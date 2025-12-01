@@ -10,8 +10,9 @@ const fileUploadResult = await storageService.uploadFile(req.file.buffer,uuid())
 const foodItem = await foodModel.create({
     name:req.body.name,
     description:req.body.description,
-    video:fileUploadResult.url,
-    foodPartner:req.foodPartner._id
+    image:fileUploadResult.url,
+    foodPartner:req.foodPartner._id,
+    price:req.body.price
 })
 
 
@@ -24,7 +25,6 @@ res.status(201).json({
 }
 
 async function getFoodItems(req,res) {
-    // const foodItems = await foodModel.find().populate('foodPartner','name address contactEmail contactPhone')
     const foodItems = await foodModel.find({})
     res.status(200).json({
         message:"food items fetched successfully",
