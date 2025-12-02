@@ -15,10 +15,16 @@ const upload = multer({
 router.post('/',authMiddleware.authFoodPartnerMiddleware,
     upload.single("file"),
     foodController.createFood)
-
+// GET /api/food/:foodId *[protected]
 router.delete('/:foodId',authMiddleware.authFoodPartnerMiddleware,
     foodController.deleteFood)
-
+// PUT /api/food/:foodId *[protected]
+router.put(
+  '/:foodId',
+ authMiddleware.authFoodPartnerMiddleware,
+  upload.single('file'),
+  foodController.updateFood
+);
 
 // GET /api/food/ *[public]
 router.get('/',
