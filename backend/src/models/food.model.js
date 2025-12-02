@@ -12,6 +12,9 @@ const foodSchema = new mongoose.Schema({
     image: {
         type: String
     },
+    imageFileId: {
+        type: String
+    },
     foodPartner: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "foodPartner"
