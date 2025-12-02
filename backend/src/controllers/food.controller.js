@@ -19,6 +19,33 @@ async function createFood(req, res) {
 }
 
 
+async function updateFood(req, res) {
+  const { foodId } = req.params;
+  const food = await foodModel.findById(foodId);
+  if (!food) {
+    return res.status(404).json({ message: "Food item not found" });
+  }
+  if (String(food.foodPartner) !== String(req.foodPartner._id)) {
+    return res.status(403).json({ message: "Not allowed to update this item" });
+  }
+  if (req.file) {
+    // Delete old image
+    await storageService.deleteFile(food.imageFileId);
+    // Upload new image
+    const fileUploadResult = await storageService.uploadFile(req.file.buffer, uuid());
+    food.image = fileUploadResult.url;
+    food.imageFileId = fileUploadResult.fileId;
+  }
+  food.name = req.body.name || food.name;
+  food.description = req.body.description || food.description;
+  food.price = req.body.price || food.price;
+  await food.save();
+  res.status(200).json({
+    message: "Food item updated successfully",
+    food,
+  });
+}
+
 async function deleteFood(req, res) {
 
   try {
@@ -82,5 +109,6 @@ module.exports = {
   deleteFood,
   getFoodItems,
   getItemByPartner,
+  updateFood
 
 }
