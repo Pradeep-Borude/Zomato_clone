@@ -28,7 +28,6 @@ router.put(
 
 // GET /api/food/ *[public]
 router.get('/',
-    // authMiddleware.authUserMiddleware,
     foodController.getFoodItems)
 
    // GET /api/food/:partnerId *[protected] 
