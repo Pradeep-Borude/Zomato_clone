@@ -12,10 +12,20 @@ async function uploadFile(file, fileName) {
         file: file,
         fileName: fileName,
     })
-    return result;
+   return{
+     url: result.url,
+    fileId: result.fileId,
+   }
 }
 
-
-module.exports={
-    uploadFile
+async function deleteFile(fileId) {
+  if (!fileId) return;
+  await imagekit.deleteFile(fileId);
 }
+
+module.exports = {
+  uploadFile,
+  deleteFile,
+};
+
+
