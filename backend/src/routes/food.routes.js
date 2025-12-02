@@ -16,11 +16,18 @@ router.post('/',authMiddleware.authFoodPartnerMiddleware,
     upload.single("file"),
     foodController.createFood)
 
+router.delete('/:foodId',authMiddleware.authFoodPartnerMiddleware,
+    foodController.deleteFood)
 
 
 // GET /api/food/ *[public]
 router.get('/',
     // authMiddleware.authUserMiddleware,
     foodController.getFoodItems)
+
+   // GET /api/food/:partnerId *[protected] 
+router.get('/:partnerId',
+    authMiddleware.authFoodPartnerMiddleware,
+    foodController.getItemByPartner)
 
 module.exports= router;
