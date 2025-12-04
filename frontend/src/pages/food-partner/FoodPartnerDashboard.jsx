@@ -9,6 +9,8 @@ export default function FoodPartnerDashboard() {
   const [foodItems, setFoodItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);   // <-- FIXED
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,8 +33,6 @@ export default function FoodPartnerDashboard() {
 
       await fetchFoodItems(partner._id);
     } catch (err) {
-      console.error('Error fetching food partner data:', err);
-
       if (err.response?.status === 401) {
         navigate('/food-partner/login');
         return;
@@ -54,8 +54,6 @@ export default function FoodPartnerDashboard() {
       setFoodItems(response.data.foodItems || []);
       setError(null);
     } catch (err) {
-      console.error('Error fetching food items:', err);
-
       if (err.response?.status === 401) {
         navigate('/food-partner/login');
         return;
@@ -79,14 +77,17 @@ export default function FoodPartnerDashboard() {
   const handleDeleteFoodItem = async (itemId) => {
     if (!window.confirm('Are you sure you want to delete this product?')) return;
 
+    setDeletingId(itemId);
+
     try {
       await axios.delete(`http://localhost:3000/api/food/${itemId}`, {
         withCredentials: true,
       });
       setFoodItems((prev) => prev.filter((p) => p._id !== itemId));
     } catch (err) {
-      console.error('Error deleting product:', err);
       alert('Failed to delete product');
+    } finally {
+      setDeletingId(null); 
     }
   };
 
@@ -152,7 +153,6 @@ export default function FoodPartnerDashboard() {
         </section>
       )}
 
-      {/* Products Section */}
       <section className="products-section">
         <div className="products-header">
           <h3>Your Products</h3>
@@ -185,6 +185,7 @@ export default function FoodPartnerDashboard() {
                   />
                   <span className="status-badge available">Available</span>
                 </div>
+
                 <div className="product-details">
                   <h4>{product.name}</h4>
                   <p className="product-desc">{product.description}</p>
@@ -192,6 +193,7 @@ export default function FoodPartnerDashboard() {
                     <span className="price">₹{product.price}</span>
                   </div>
                 </div>
+
                 <div className="product-actions">
                   <button
                     className="btn-small btn-secondary"
@@ -201,11 +203,13 @@ export default function FoodPartnerDashboard() {
                   >
                     Edit
                   </button>
+
                   <button
                     className="btn-small btn-danger"
                     onClick={() => handleDeleteFoodItem(product._id)}
+                    disabled={deletingId === product._id}
                   >
-                    Delete
+                    {deletingId === product._id ? 'Deleting...' : 'Delete'}
                   </button>
                 </div>
               </div>

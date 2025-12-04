@@ -30,11 +30,9 @@ try {
             'Content-Type': 'multipart/form-data'
           }
         });
-        console.log('data sent successfully:', response.data);
         navigate('/food-partner/dashboard');
       }
     catch (error) {
-      console.error("Add item failed:", error);
       alert("Failed to add item. Please try again.");
     } finally {
       setadding(false);
@@ -56,6 +54,7 @@ try {
               type="text"
               id="name"
               placeholder="Enter food item name"
+              required={true}
               disabled={adding}
             />
           </div>
@@ -67,6 +66,7 @@ try {
               placeholder="Enter food item description"
               rows="5"
               disabled={adding}
+              required={true}
             ></textarea>
           </div>
 
@@ -77,6 +77,7 @@ try {
               id="price"
               placeholder="Enter food item price"
               disabled={adding}
+              required={true}
 
             />
           </div>
@@ -90,6 +91,7 @@ try {
                 accept="image/*"
                 className="file-input"
               disabled={adding}
+              required={true}
 
               />
               <div className="upload-placeholder">
