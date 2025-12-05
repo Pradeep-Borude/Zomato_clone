@@ -1,17 +1,3 @@
-// import { useCookies } from "react-cookie";
-// import { Navigate } from "react-router-dom";
-
-// export default function UserProtectedRoute({ children }) {
-//   const [cookies] = useCookies(["userToken"]);
-
-//   if (!cookies.userToken) {
-//     return <Navigate to="/user/login" replace />;
-//   }
-
-//   return children;
-// }
-
-// src/middleware/UserProtectedRoute.jsx
 import { Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";

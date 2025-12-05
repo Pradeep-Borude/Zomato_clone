@@ -7,43 +7,45 @@ export default function PublicOnlyRoute({ children }) {
   const [status, setStatus] = useState("checking"); // 'checking' | 'guest' | 'auth'
   const [redirectTo, setRedirectTo] = useState("/");
 
-  useEffect(() => {
-    const check = async () => {
-      try {
-        const partnerRes = await axios.get(
-          "http://localhost:3000/api/auth/food-partner/me",
-          { withCredentials: true }
-        );
-        if (partnerRes.data?.success) {
-          setRedirectTo("/food-partner/dashboard");
-          setStatus("auth");
-          return;
-        }
-      } catch {}
+ useEffect(() => {
+  const check = async () => {
+    const [partnerRes, userRes] = await Promise.allSettled([
+      axios.get("http://localhost:3000/api/auth/food-partner/me", {
+        withCredentials: true,
+        validateStatus: () => true, 
+      }),
+      axios.get("http://localhost:3000/api/auth/user/me", {
+        withCredentials: true,
+        validateStatus: () => true, 
+      })
+    ]);
 
-      try {
-        const userRes = await axios.get(
-          "http://localhost:3000/api/auth/user/me",
-          { withCredentials: true }
-        );
-        if (userRes.data?.success) {
-          setRedirectTo("/user");
-          setStatus("auth");
-          return;
-        }
-      } catch {}
+    //if Food partner is true
+    if (partnerRes.status === "fulfilled" && partnerRes.value.data?.success) {
+      setRedirectTo("/food-partner/dashboard");
+      setStatus("auth");
+      return;
+    }
 
-      setStatus("guest");
-    };
+    //if User is true
+    if (userRes.status === "fulfilled" && userRes.value.data?.success) {
+      setRedirectTo("/user");
+      setStatus("auth");
+      return;
+    }
 
-    check();
-  }, []);
+    setStatus("guest");
+  };
 
-  if (status === "checking") return null; 
+  check();
+}, []);
+
+
+  if (status === "checking") return null;
 
   if (status === "auth") {
     return <Navigate to={redirectTo} replace />;
   }
 
-  return children; 
+  return children;
 }

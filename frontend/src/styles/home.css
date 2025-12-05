@@ -172,7 +172,7 @@
   text-decoration: none;
   color: var(--text-secondary);
   transition: color var(--transition-fast);
-  flex: 1;
+  flex: 0.06;
   height: 100%;
   cursor: pointer;
   position: relative;

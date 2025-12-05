@@ -4,52 +4,54 @@ import axios from 'axios';
 import BottomNav from '../../components/BottomNav';
 import '../../styles/foodPartnerDashboard.css';
 
-export default function FoodPartnerDashboard() {
+export default function UserProfile() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchUserData();
+    checkAuthAndLoad();
   }, []);
 
-  const fetchUserData = async () => {
+  const checkAuthAndLoad = async () => {
     try {
-      const response = await axios.get(
-        'http://localhost:3000/api/auth/user/me',
-        { withCredentials: true }
+      // Check partner first
+      const partnerRes = await axios.get(
+        'http://localhost:3000/api/auth/food-partner/me',
+        { 
+          withCredentials: true,
+          validateStatus: () => true  
+        }
       );
 
-      setUser(response.data.user);
-      setError(null);
-    } catch (err) {
-      console.error('Error fetching user data:', err);
-
-      if (err.response?.status === 401) {
-        navigate('/user/login');
+      if (partnerRes.data?.success) {
+        navigate('/food-partner/dashboard');
         return;
       }
 
-      setUser({
-        fullName: 'Guest',
-        email: 'restaurant@example.com',
-        contact: '0000000000',
-        address: 'Your Restaurant Address',
-        profilePhoto: null,
-        createdAt: new Date().toISOString(),
-      });
-      
+      // Check user
+      const userRes = await axios.get(
+        'http://localhost:3000/api/auth/user/me',
+        { 
+          withCredentials: true,
+          validateStatus: () => true  
+        }
+      );
+
+      if (userRes.data?.success) {
+        setUser(userRes.data.user);
+        setError(null);
+      } else {
+        navigate('/user/login');
+      }
+    } catch (err) {
+      console.error('Auth check failed:', err);
+      navigate('/user/login');
     } finally {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (user) {
-      console.log('user state updated:', user);
-    }
-  }, [user]);
 
   const handleLogout = async () => {
     try {
@@ -62,38 +64,6 @@ export default function FoodPartnerDashboard() {
       alert('Logout failed');
     }
   };
-
-  // optional: keep this page only for users, not partners
-  const decideRedirect = async () => {
-    try {
-      const partnerRes = await axios.get(
-        'http://localhost:3000/api/auth/food-partner/me',
-        { withCredentials: true }
-      );
-      if (partnerRes.data?.success) {
-        navigate('/food-partner/dashboard');
-        return;
-      }
-    } catch (e) {}
-
-    try {
-      const userRes = await axios.get(
-        'http://localhost:3000/api/auth/user/me',
-        { withCredentials: true }
-      );
-      if (userRes.data?.success) {
-        // already on correct page for user, no redirect
-        return;
-      }
-    } catch (e) {}
-
-    // not logged in as user or partner
-    navigate('/user/login');
-  };
-
-  useEffect(() => {
-    decideRedirect();
-  }, []);
 
   if (loading) {
     return (
@@ -130,8 +100,8 @@ export default function FoodPartnerDashboard() {
                 />
               </div>
               <div className="profile-info">
-                <h2>{user.fullName || 'User name'}</h2>
-                <span className="detail-value">{user.email || 'email'}</span>
+                <h2>{user.fullName}</h2>
+                <span className="detail-value">{user.email}</span>
               </div>
             </div>
 
@@ -159,7 +129,7 @@ export default function FoodPartnerDashboard() {
           <div className="stat-value">Settings</div>
         </div>
       </section>
-      <BottomNav/>
+      <BottomNav />
     </div>
   );
 }

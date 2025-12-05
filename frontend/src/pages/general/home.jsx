@@ -8,14 +8,31 @@ export default function Home() {
   const navigate = useNavigate();
   const [foodItems, setFoodItems] = useState([]); // useState for food items
 
+
+const addToCart = async (itemId) => {
+
+  try {
+    const response=await axios.post(
+      `http://localhost:3000/api/food/add-to-cart/${itemId}`,
+      {}, 
+      { withCredentials: true }
+    );
+    alert(response.data.message)
+    // alert(response);
+  } catch (err) {
+    alert("Failed to add product");
+  }
+};
+
+
+
+
   async function fetchData() {
     try {
       const response = await axios.get(
         "http://localhost:3000/api/food",
         { withCredentials: true }
       );
-      console.log("API response:", response.data.foodItems);
-
       // Update state with fetched items (triggers re-render)
       setFoodItems(response.data.foodItems);
     } catch (error) {
@@ -57,10 +74,10 @@ export default function Home() {
                 <h3 className="product-name">{product.name}</h3>
                 <p className="product-description">{product.description}</p>
                 <div className="product-footer">
-                  <span className="product-price">{product.price}</span>
+                  <span className="product-price"> ₹ {product.price}</span>
                   <button
                     className="add-to-cart-btn"
-                    onClick={() => handleAddToCart(product)}
+                    onClick={() => addToCart(product._id)}
                   >
                     Add
                   </button>
