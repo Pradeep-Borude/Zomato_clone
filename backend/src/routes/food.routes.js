@@ -64,6 +64,9 @@ router.get(
   cartController.getCartItemByUSer
 );
 
+//remove from cart
+router.delete('/remove-from-cart/:foodId',  authMiddleware.authUserMiddleware, cartController.removeFromCart);
+
 /* ----------------------------------------
    PUBLIC FOOD ROUTE
 -----------------------------------------*/

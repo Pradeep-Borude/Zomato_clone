@@ -17,5 +17,27 @@ const cartSchema = new mongoose.Schema({
   },
 });
 
+const orderSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'user',
+    required: true,
+  },
+  foodItem: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Food',
+    required: true,
+  },
+  quantity: {
+    type: Number,
+    default: 1,
+  },
+});
+
 const cartModel = mongoose.model('CartItem', cartSchema);
-module.exports = cartModel;
+const orderModel = mongoose.model('order', orderSchema);
+module.exports = {
+  cartModel,
+  orderModel
+}
+
